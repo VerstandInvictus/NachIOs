@@ -31,8 +31,11 @@ magicWord = Hook['env']['magicword']
 
 # now we set the parameters
 secret = Hook['params']['sec']
-subject = Hook['params']['sub']
-# bo and at are optional params; catch cases where they don't exist.
+# catch empty params
+try:
+    subject = Hook['params']['sub']
+except KeyError:
+    subject = "NOSUB"
 try:
     body = Hook['params']['bo']
 except KeyError:
@@ -42,21 +45,28 @@ try:
 except KeyError:
     note = None
 
-toss = ("", '\n',)
-
+#strip blank params passed from IFTT/placeholders
+toss = ("", '\n', "NOSUB")
 if note in toss:
     note = None
 if body in toss:
     note = None
 if len(body) < 3:
     body = None
+
 # I use the below signature to keep Gmail on android from prompting me
-# about empty body in an email. Strip it out:
+# about empty body in an email. This could be anything you want. Strip it out:
 signature = "\n\n______\n"
 if body.endswith(signature):
     cut = len(signature)
     body = body[:-cut]
     
+# if no subject (read: shared from Google Keep), use body as subject
+# but keep body as note in case of errors/truncation
+if subject in toss:
+    subject = body
+
+# DRY note posting func
 def postNote(node, content, apikey):
     url = 'https://nachapp.com/api/nodes/' + str(node) + "/notes"
     newNote = requests.post(url, auth=(apikey, ''), verify=False, data={
@@ -64,7 +74,7 @@ def postNote(node, content, apikey):
     })
     return newNote
 
-# send the request
+# make the step
 if magicWord == secret:
     url = 'https://nachapp.com/api/users/' + str(user) + '/nodes'
     newStep = requests.post(url, auth=(apiKey, ''), verify=False, data={
@@ -73,6 +83,7 @@ if magicWord == secret:
         "name": subject
     })
     print newStep.text
+    # get the ID of the new step and add notes
     response = json.loads(newStep.text)
     nodeId = response['id']
     if note is not None:
