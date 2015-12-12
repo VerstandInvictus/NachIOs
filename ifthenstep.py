@@ -38,6 +38,7 @@ if magicWord == secret:
 	url = 'https://nachapp.com/api/users/' + str(user) + '/nodes'
 	r = requests.post(url, auth=(apiKey, ''), verify=False, data= {
 	    "parent":parentNode,
+	    "type":"Step",
 	    "name":body
 	    })
 	print r.text
