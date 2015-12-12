@@ -2,11 +2,8 @@
 #
 # Parameters are ?sec=<password>&sub=<subject>&bo=<body>&att=<attachmenturl>.
 #
-# This adds a step to a preconfigured Nach inbox node with bo as the name
-# and att as a note.
-#
-# Subject is currently not implemented but is intended to be used
-# for date/alert/repeat shortcuts.
+# This adds a step to a preconfigured Nach inbox node with sub as the name
+# and att and body as a note if present.
 #
 # It is intended to be used with IFTTT's Maker channel action and
 # Email trigger; in particular, attachmenturl implements IFTTT's feature
@@ -34,12 +31,12 @@ magicWord = Hook['env']['magicword']
 
 # now we set the parameters
 secret = Hook['params']['sec']
-body = Hook['params']['bo']
-# sub and at are optional params; catch cases where they don't exist.
+subject = Hook['params']['sub']
+# bo and at are optional params; catch cases where they don't exist.
 try:
-    subject = Hook['params']['sub']
+    body = Hook['params']['bo']
 except KeyError:
-    subject = None
+    body = None
 try:
     note = Hook['params']['at']
 except KeyError:
@@ -51,7 +48,7 @@ if magicWord == secret:
     newStep = requests.post(url, auth=(apiKey, ''), verify=False, data={
         "parent": parentNode,
         "type": "Step",
-        "name": body
+        "name": subject
     })
     print newStep.text
     response = json.loads(newStep.text)
@@ -62,10 +59,10 @@ if magicWord == secret:
             "content" : note
         })
         print newNote.text
-    if subject is not None:
+    if body is not None:
         url = 'https://nachapp.com/api/nodes/' + str(nodeId) + "/notes"
         newSubj = requests.post(url, auth=(apiKey, ''), verify=False, data={
-            "content" : subject
+            "content" : body
         })
         print newSubj.text
 
