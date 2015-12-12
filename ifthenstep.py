@@ -42,6 +42,15 @@ try:
 except KeyError:
     note = None
 
+toss = ("", '\n',)
+
+if note in toss:
+    note = None
+if body in toss:
+    note = None
+if len(body) < 3:
+    body = None
+
 # send the request
 if magicWord == secret:
     url = 'https://nachapp.com/api/users/' + str(user) + '/nodes'
@@ -61,10 +70,10 @@ if magicWord == secret:
         print newNote.text
     if body is not None:
         url = 'https://nachapp.com/api/nodes/' + str(nodeId) + "/notes"
-        newSubj = requests.post(url, auth=(apiKey, ''), verify=False, data={
+        newBody = requests.post(url, auth=(apiKey, ''), verify=False, data={
             "content" : body
         })
-        print newSubj.text
+        print newBody.text
 
 # nedry.py
 else:
