@@ -24,4 +24,4 @@ if secret == magicword:
 # <nedry>
 else:
 	print "Ah ah ah! You didn't say the magic word!"
-# </nedry>
+# </nedry> 
