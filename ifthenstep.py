@@ -50,6 +50,19 @@ if body in toss:
     note = None
 if len(body) < 3:
     body = None
+# I use the below signature to keep Gmail on android from prompting me
+# about empty body in an email. Strip it out:
+signature = "\n\n______\n"
+if body.endswith(signature):
+    cut = len(signature)
+    body = body[:-cut]
+    
+def postNote(node, content, apikey):
+    url = 'https://nachapp.com/api/nodes/' + str(node) + "/notes"
+    newNote = requests.post(url, auth=(apikey, ''), verify=False, data={
+        "content" : content
+    })
+    return newNote
 
 # send the request
 if magicWord == secret:
@@ -63,17 +76,9 @@ if magicWord == secret:
     response = json.loads(newStep.text)
     nodeId = response['id']
     if note is not None:
-        url = 'https://nachapp.com/api/nodes/' + str(nodeId) + "/notes"
-        newNote = requests.post(url, auth=(apiKey, ''), verify=False, data={
-            "content" : note
-        })
-        print newNote.text
+        attNote = postNote(nodeId, note, apiKey)
     if body is not None:
-        url = 'https://nachapp.com/api/nodes/' + str(nodeId) + "/notes"
-        newBody = requests.post(url, auth=(apiKey, ''), verify=False, data={
-            "content" : body
-        })
-        print newBody.text
+        bodyNote = postNote(nodeId, body, apiKey)
 
 # nedry.py
 else:
