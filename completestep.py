@@ -22,8 +22,9 @@ except KeyError:
 
 # make the step
 if magicWord == secret:
-    'https://nachapp.com/api/users/' + str(user) + '/nodes'
-    listNodes = requests.get(url, auth=apiKey, ''), verify=False
+    url = 'https://nachapp.com/api/users/' + str(user) + '/nodes'
+    listNodes = requests.get(url, auth=(apiKey, ''), verify=False)
+    print listNodes.text
 
 # nedry.py
 # unfortunately Hook doesn't let python access logs yet
