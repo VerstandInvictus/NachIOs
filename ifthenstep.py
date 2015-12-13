@@ -29,6 +29,7 @@
 
 import requests
 import json
+import urllib
 
 # begin setting vars. This should be your username
 user = Hook['env']['nachuser']
@@ -62,24 +63,24 @@ except KeyError:
 
 # I use the below signature to keep Gmail on Android from prompting me
 # about empty body in an email. This could be anything you want. Strip it out:
-signature = "\n\n______\n"
-if body.endswith(signature):
-    cut = len(signature)
-    body = body[:-cut]
+#signature = "\n\n______\n"
+#if body.endswith(signature):
+# 	cut = len(signature)
+#   	body = body[:-cut]
 
 #strip blank params passed from IFTT/placeholders
-toss = ("", '\n', "NOSUB")
-if note in toss:
-    note = None
-if body in toss:
-    note = None
-if len(body) < 3:
-    body = None
+#toss = ("", '\n', "NOSUB")
+#if note in toss:
+#    note = None
+#if body in toss:
+#    note = None
+#if len(body) < 3:
+#    body = None
     
 # if no subject (read: shared from Google Keep), use body as subject
 # but keep body as note in case of errors/truncation
-if subject in toss:
-    subject = body
+#if subject in toss:
+#    subject = body
 
 # DRY note posting func
 def postNote(node, content, apikey):
@@ -95,7 +96,7 @@ if magicWord == secret:
     newStep = requests.post(url, auth=(apiKey, ''), verify=False, data={
         "parent": parentNode,
         "type": "Step",
-        "name": subject
+        "name": "test"
     })
     # get the ID of the new step and add notes
     response = json.loads(newStep.text)
@@ -104,6 +105,8 @@ if magicWord == secret:
         attNote = postNote(nodeId, note, apiKey)
     if body is not None:
         bodyNote = postNote(nodeId, body, apiKey)
+    debugstring = str(urllib.unquote(str(Hook['req']['url'])).split("_B_R_K_"))
+    debugnote2 = postNote(nodeId, debugstring, apiKey)
 
 # nedry.py
 # unfortunately Hook doesn't let python access logs yet
