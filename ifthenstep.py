@@ -2,12 +2,14 @@
 #
 # Parameters are:
 # ?sec=<password>
-# &sub=<subject>
-# &bo=<body>
-# &att=<attachmenturl>
-# &par=<parent node>
-# All except sec are optional if properly configured, except 
-# there must be either a subject or a body or both.
+# &par=<parentNode>
+# &msg=_B_R_K_{{Subject}}_B_R_K_{{Body}}_B_R_K_{{AttachmentUrl}}
+#
+# The MSG parameter can contain as many items as needed and they'll all
+# be added as notes.
+# 
+# It is done in this strange way because IFTTT doesn't escape URLs within
+# its URLs.
 #
 # This adds a step to a preconfigured Nach inbox node with sub as the name
 # and att and body as a note if present.
@@ -48,39 +50,34 @@ try:
     parentNode = Hook['params']['par']
 except KeyError:
     pass
-try:
-    subject = Hook['params']['sub']
-except KeyError:
-    subject = "NOSUB"
-try:
-    body = Hook['params']['bo']
-except KeyError:
-    body = None
-try:
-    note = Hook['params']['at']
-except KeyError:
-    note = None
+
+msgstring = urllib.unquote(str(Hook['req']['url'])).split("_B_R_K_")
+
+subject = msgstring[1]
+if len(msgstring) > 2:
+    notes = msgstring[2:]
 
 # I use the below signature to keep Gmail on Android from prompting me
 # about empty body in an email. This could be anything you want. Strip it out:
-#signature = "\n\n______\n"
-#if body.endswith(signature):
-# 	cut = len(signature)
-#   	body = body[:-cut]
+
+newNotes = list()
+signature = "\n\n______\n"
+for each in notes:
+	if each.endswith(signature):
+		cut = len(signature)
+		each = each[:-cut]
+	newNotes.append(each)
+notes = newNotes
 
 #strip blank params passed from IFTT/placeholders
-#toss = ("", '\n', "NOSUB")
-#if note in toss:
-#    note = None
-#if body in toss:
-#    note = None
-#if len(body) < 3:
-#    body = None
-    
+toss = ("", '\n', "NOSUB")
+filteredNotes = [x for x in notes if not x in toss]
+notes=filteredNotes
+
 # if no subject (read: shared from Google Keep), use body as subject
 # but keep body as note in case of errors/truncation
-#if subject in toss:
-#    subject = body
+if subject in toss:
+    subject = notes[0]
 
 # DRY note posting func
 def postNote(node, content, apikey):
@@ -96,17 +93,13 @@ if magicWord == secret:
     newStep = requests.post(url, auth=(apiKey, ''), verify=False, data={
         "parent": parentNode,
         "type": "Step",
-        "name": "test"
+        "name": subject
     })
     # get the ID of the new step and add notes
     response = json.loads(newStep.text)
     nodeId = response['id']
-    if note is not None:
-        attNote = postNote(nodeId, note, apiKey)
-    if body is not None:
-        bodyNote = postNote(nodeId, body, apiKey)
-    debugstring = str(urllib.unquote(str(Hook['req']['url'])).split("_B_R_K_"))
-    debugnote2 = postNote(nodeId, debugstring, apiKey)
+    for each in notes:
+        bodyNote = postNote(nodeId, each, apiKey)
 
 # nedry.py
 # unfortunately Hook doesn't let python access logs yet
