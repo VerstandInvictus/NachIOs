@@ -128,7 +128,7 @@ if magicWord == secret:
     if status == "completed":
     	url = 'https://nachapp.com/api/todos/' + str(nodeId)
     	newCompletion = requests.patch(url, auth=(apiKey, ''), verify=False, data={
-    		"status" : "completed"}
+    		"status" : "completed"})
 
 # nedry.py
 # unfortunately Hook doesn't let python access logs yet
