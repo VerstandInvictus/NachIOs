@@ -125,6 +125,10 @@ if magicWord == secret:
     nodeId = response['id']
     for each in notes:
         bodyNote = postNote(nodeId, each, apiKey)
+    if status == "completed":
+    	url = 'https://nachapp.com/api/todos/' + str(nodeId)
+    	newCompletion = requests.patch(url, auth=(apiKey, ''), verify=False, data={
+    		"status" : "completed"}
 
 # nedry.py
 # unfortunately Hook doesn't let python access logs yet
