@@ -1,8 +1,9 @@
 # IFTTT email to Hook.io Nach step creator.
 #
 # Parameters are:
-# ?sec=<password>
-# &par=<parentNode>
+# ?sec=<password> (secret word you set in Hook)
+# &par=<parentNode> (Nach node ID)
+# &st=<status> (completed, failed, or null)
 # &msg=_B_R_K_{{Subject}}_B_R_K_{{Body}}_B_R_K_{{AttachmentUrl}}
 #
 # The MSG parameter can contain as many items as needed and they'll all
@@ -45,6 +46,7 @@ apiKey = Hook['env']['nachkey']
 magicWord = Hook['env']['magicword']
 
 # now we set the parameters
+status = Hook['params']['st']
 secret = Hook['params']['sec']
 # catch empty params
 try:
@@ -115,7 +117,8 @@ if magicWord == secret:
     newStep = requests.post(url, auth=(apiKey, ''), verify=False, data={
         "parent": parentNode,
         "type": "Step",
-        "name": subject
+        "name": subject,
+        "status": status
     })
     # get the ID of the new step and add notes
     response = json.loads(newStep.text)
