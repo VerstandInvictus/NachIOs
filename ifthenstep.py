@@ -86,22 +86,23 @@ if subject in toss:
 # replace or delete these with yours
 if "music" in subject.lower():
 	parentNode = 47745
-if "wp" in subject.lower():
-	parentNode = 49021
-if "[dot]" in subject.lower():
-	parentNode = 47587
-if "deviantart" in subject.lower():
-	parentNode = 47688
-if "buy" in subject.lower():
-	parentNode = 47577
-if "watch" in subject.lower():
-    parentNode = 47553
-if "book" in subject.lower() or "calibre" in subject.lower():
-	parentNode = 47555
-if "pay" in subject.lower():
-	parentNode = 47557
-if "work" in subject.lower():
+elif "work" in subject.lower():
 	parentNode = 47541
+elif "deviantart" in subject.lower():
+	parentNode = 47688
+elif "wp" in subject.lower():
+	parentNode = 49021
+elif "[dot]" in subject.lower():
+	parentNode = 47587
+elif "buy" in subject.lower():
+	parentNode = 47577
+elif "watch" in subject.lower():
+    parentNode = 47553
+elif "book" in subject.lower() or "calibre" in subject.lower():
+	parentNode = 47555
+elif "pay" in subject.lower():
+	parentNode = 47557
+
 
 # DRY note posting func
 def postNote(node, content, apikey):
