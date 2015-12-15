@@ -57,6 +57,7 @@ except KeyError:
 # this is where we get the URL and split it to a list of pseudo-params
 msgstring = urllib.unquote(str(Hook['req']['url'])).split("_B_R_K_")
 
+notes = None
 subject = msgstring[1]
 if len(msgstring) > 2:
     notes = msgstring[2:]
@@ -65,11 +66,13 @@ if len(msgstring) > 2:
 # about empty body in an email. This could be anything you want. Strip it out:  
 newNotes = list()
 signature = "\n\n______\n"
-for each in notes:
-	if each.endswith(signature):
-		cut = len(signature)
-		each = each[:-cut]
-	newNotes.append(each)
+if notes:
+    for each in notes:
+    	each = each.strip()
+    	if each.endswith(signature):
+    		cut = len(signature)
+    		each = each[:-cut]
+    	newNotes.append(each)
 notes = newNotes
 
 #strip blank params passed from IFTT/placeholders
@@ -121,15 +124,18 @@ if magicWord == secret:
         "name": subject,
         "status": status
     })
+    print newStep.text
     # get the ID of the new step and add notes
     response = json.loads(newStep.text)
     nodeId = response['id']
     for each in notes:
         bodyNote = postNote(nodeId, each, apiKey)
+        print bodyNote.text
     if status == "completed":
     	url = 'https://nachapp.com/api/todos/' + str(nodeId)
     	newCompletion = requests.patch(url, auth=(apiKey, ''), verify=False, data={
     		"status" : "completed"})
+        print newCompletion.text
 
 # nedry.py
 # unfortunately Hook doesn't let python access logs yet
