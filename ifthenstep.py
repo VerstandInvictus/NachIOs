@@ -34,6 +34,7 @@
 import requests
 import json
 import urllib
+import time
 
 # begin setting vars. This should be your username
 user = Hook['env']['nachuser']
@@ -131,10 +132,12 @@ if magicWord == secret:
     for each in notes:
         bodyNote = postNote(nodeId, each, apiKey)
         print bodyNote.text
+    # pause - completion doesn't work if we do not do this
+    time.sleep(5)
     if status == "completed":
     	url = 'https://nachapp.com/api/todos/' + str(nodeId)
-    	newCompletion = requests.patch(url, auth=(apiKey, ''), verify=False, data={
-    		"status" : "completed"})
+    	newCompletion = requests.patch(url, auth=(apiKey, ''), verify=False, data=
+    		{"status" : "completed"})
         print newCompletion.text
 
 # nedry.py
