@@ -64,22 +64,23 @@ if len(msgstring) > 2:
     notes = msgstring[2:]
 
 # I use the below signature to keep Gmail on Android from prompting me
-# about empty body in an email. This could be anything you want. Strip it out:  
+# about empty body in an email. This could be anything you want. Strip it
+# out:
 newNotes = list()
 signature = "\n\n______\n"
 if notes:
     for each in notes:
-    	each = each.strip()
-    	if each.endswith(signature):
-    		cut = len(signature)
-    		each = each[:-cut]
-    	newNotes.append(each)
+        each = each.strip()
+        if each.endswith(signature):
+            cut = len(signature)
+            each = each[:-cut]
+        newNotes.append(each)
 notes = newNotes
 
-#strip blank params passed from IFTT/placeholders
+# strip blank params passed from IFTT/placeholders
 toss = ("", '\n', "NOSUB")
-filteredNotes = [x for x in notes if not x in toss]
-notes=filteredNotes
+filteredNotes = [x for x in notes if x not in toss]
+notes = filteredNotes
 
 # if no subject (read: shared from Google Keep), use body as subject
 # but keep body as note in case of errors/truncation
@@ -88,33 +89,36 @@ if subject in toss:
 
 # custom categorization shortcuts for some of my goals
 # replace or delete these with yours
-if "music" in subject.lower():
-	parentNode = 47745
-elif "work" in subject.lower():
-	parentNode = 47541
-elif "deviantart" in subject.lower():
-	parentNode = 47688
-elif "wp" in subject.lower():
-	parentNode = 49021
-elif "[dot]" in subject.lower():
-	parentNode = 47587
-elif "buy" in subject.lower():
-	parentNode = 47577
-elif "watch" in subject.lower():
-    parentNode = 47553
-elif "book" in subject.lower() or "calibre" in subject.lower():
-	parentNode = 47555
-elif "pay" in subject.lower():
-	parentNode = 47557
+if parentNode == Hook['env']['nachsteproot']:
+    if any(x in subject.lower() for x in ["music", "song"]):
+        parentNode = 47745
+    elif any(x in subject.lower() for x in ["deviantart", ]):
+        parentNode = 47688
+    elif any(x in subject.lower() for x in ["wp", ]):
+        parentNode = 49021
+    elif any(x in subject.lower() for x in ["[dot]", "ffinit", "fa:"]):
+        parentNode = 47587
+    elif any(x in subject.lower() for x in ["buy", "amazon", "purchase"]):
+        parentNode = 47577
+    elif any(x in subject.lower() for x in ["movie", "watch", "show"]):
+        parentNode = 47553
+    elif any(x in subject.lower() for x in ["book", "calibre", ]):
+        parentNode = 47555
+    elif any(x in subject.lower() for x in ["pay", "bill"]):
+        parentNode = 47557
+    elif any(x in subject.lower() for x in ["work", "gus", "smarsh",
+                                            "teardown"]):
+        parentNode = 47541
 
 
 # DRY note posting func
 def postNote(node, content, apikey):
-    url = 'https://nachapp.com/api/nodes/' + str(node) + "/notes"
-    newNote = requests.post(url, auth=(apikey, ''), verify=False, data={
-        "content" : content
+    nurl = 'https://nachapp.com/api/nodes/' + str(node) + "/notes"
+    newNote = requests.post(nurl, auth=(apikey, ''), verify=False, data={
+        "content": content
     })
     return newNote
+
 
 # make the step
 if magicWord == secret:
@@ -135,9 +139,10 @@ if magicWord == secret:
     # pause - completion doesn't work if we do not do this
     time.sleep(5)
     if status == "completed":
-    	url = 'https://nachapp.com/api/todos/' + str(nodeId)
-    	newCompletion = requests.patch(url, auth=(apiKey, ''), verify=False, data=
-    		{"status" : "completed"})
+        url = 'https://nachapp.com/api/todos/' + str(nodeId)
+        newCompletion = requests.patch(url, auth=(apiKey, ''), verify=False,
+                                       data=
+                                       {"status": "completed"})
         print newCompletion.text
 
 # nedry.py
