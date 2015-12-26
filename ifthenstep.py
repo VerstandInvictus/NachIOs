@@ -35,8 +35,10 @@ import requests
 import json
 import urllib
 import time
+import sys
 
 # begin setting vars. This should be your username
+
 user = Hook['env']['nachuser']
 # default value - this is set to my inbox's node ID but it could be anything
 parentNode = Hook['env']['nachsteproot']
@@ -45,6 +47,7 @@ apiKey = Hook['env']['nachkey']
 # ditto - store a secret word or phrase in Hook env vars.
 # This prevents open access to this hook.
 magicWord = Hook['env']['magicword']
+debugParent = None
 
 # now we set the parameters
 status = Hook['params']['st']
@@ -55,8 +58,24 @@ try:
 except KeyError:
     pass
 
+
+# DRY note posting func
+def postNote(node, content, apikey):
+    nurl = 'https://nachapp.com/api/nodes/' + str(node) + "/notes"
+    newNote = requests.post(nurl, auth=(apikey, ''), verify=False, data={
+        "content": content
+    })
+    return newNote
+
+
+def debugNote(content):
+    global apiKey
+    postNote(debugParent, content, apiKey)
+
 # this is where we get the URL and split it to a list of pseudo-params
-msgstring = urllib.unquote(str(Hook['req']['url'])).split("_B_R_K_")
+
+msg = urllib.unquote(str(Hook['req']['url'].encode('ascii', 'ignore')))
+msgstring = msg.split("_B_R_K_")
 
 notes = None
 subject = msgstring[1]
@@ -85,6 +104,7 @@ if subject in toss:
 
 # custom categorization shortcuts for some of my goals
 # replace or delete these with yours
+
 if parentNode == Hook['env']['nachsteproot']:
     if any(x in subject.lower() for x in ["music", "song"]):
         parentNode = 47745
@@ -102,19 +122,8 @@ if parentNode == Hook['env']['nachsteproot']:
         parentNode = 47555
     elif any(x in subject.lower() for x in ["pay", "bill"]):
         parentNode = 47557
-    elif any(x in subject.lower() for x in ["work", "gus", "smarsh",
-                                            "teardown"]):
+    elif any(x in subject.lower() for x in ["work", "gus", "teardown"]):
         parentNode = 47541
-
-
-# DRY note posting func
-def postNote(node, content, apikey):
-    nurl = 'https://nachapp.com/api/nodes/' + str(node) + "/notes"
-    newNote = requests.post(nurl, auth=(apikey, ''), verify=False, data={
-        "content": content
-    })
-    return newNote
-
 
 # make the step
 if magicWord == secret:
@@ -125,13 +134,12 @@ if magicWord == secret:
         "name": subject,
         "status": status
     })
-    print newStep.text
+
     # get the ID of the new step and add notes
     response = json.loads(newStep.text)
     nodeId = response['id']
     for each in notes:
         bodyNote = postNote(nodeId, each, apiKey)
-        print bodyNote.text
     # pause - completion doesn't work if we do not do this
     time.sleep(5)
     if status == "completed":
@@ -139,7 +147,6 @@ if magicWord == secret:
         newCompletion = requests.patch(url, auth=(apiKey, ''), verify=False,
                                        data=
                                        {"status": "completed"})
-        print newCompletion.text
 
 # nedry.py
 # unfortunately Hook doesn't let python access logs yet
