@@ -63,17 +63,13 @@ subject = msgstring[1]
 if len(msgstring) > 2:
     notes = msgstring[2:]
 
-# I use the below signature to keep Gmail on Android from prompting me
-# about empty body in an email. This could be anything you want. Strip it
-# out:
+# I use a signature comprised only of newlines and underscores to keep Gmail
+# on Android from prompting me about empty body in an email. Strip it out:
 newNotes = list()
-signature = "\n\n______\n"
 if notes:
     for each in notes:
         each = each.strip()
-        if each.endswith(signature):
-            cut = len(signature)
-            each = each[:-cut]
+        each = each.rstrip("\n_")
         newNotes.append(each)
 notes = newNotes
 
