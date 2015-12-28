@@ -35,19 +35,16 @@ import requests
 import json
 import urllib
 import time
-import sys
 
 # begin setting vars. This should be your username
 
 user = Hook['env']['nachuser']
-# default value - this is set to my inbox's node ID but it could be anything
-parentNode = Hook['env']['nachsteproot']
 # to avoid publicizing API key, store it in your Hook env vars (hook.io/env).
 apiKey = Hook['env']['nachkey']
 # ditto - store a secret word or phrase in Hook env vars.
 # This prevents open access to this hook.
 magicWord = Hook['env']['magicword']
-debugParent = None
+debugParent = 50768
 
 # now we set the parameters
 status = Hook['params']['st']
@@ -56,7 +53,9 @@ secret = Hook['params']['sec']
 try:
     parentNode = Hook['params']['par']
 except KeyError:
-    pass
+    # default value - this is set to my inbox's node ID but it could be
+    # anything
+    parentNode = Hook['env']['nachsteproot']
 
 
 # DRY note posting func
@@ -104,8 +103,9 @@ if subject in toss:
 
 # custom categorization shortcuts for some of my goals
 # replace or delete these with yours
-
-if parentNode == Hook['env']['nachsteproot']:
+debugNote(int(parentNode) == int(Hook['env']['nachsteproot']))
+if int(parentNode) == int(Hook['env']['nachsteproot']):
+    debugNote(parentNode + "IN THA LOOP")
     if any(x in subject.lower() for x in ["music", "song"]):
         parentNode = 47745
     elif any(x in subject.lower() for x in ["deviantart", ]):
@@ -113,6 +113,7 @@ if parentNode == Hook['env']['nachsteproot']:
     elif any(x in subject.lower() for x in ["wp", ]):
         parentNode = 49021
     elif any(x in subject.lower() for x in ["[dot]", "ffinit", "fa:"]):
+        debugNote(parentNode + "IN THA ELIF")
         parentNode = 47587
     elif any(x in subject.lower() for x in ["buy", "amazon", "purchase"]):
         parentNode = 47577
