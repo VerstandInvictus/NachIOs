@@ -44,7 +44,6 @@ apiKey = Hook['env']['nachkey']
 # ditto - store a secret word or phrase in Hook env vars.
 # This prevents open access to this hook.
 magicWord = Hook['env']['magicword']
-debugParent = 50768
 
 # now we set the parameters
 status = Hook['params']['st']
@@ -103,9 +102,7 @@ if subject in toss:
 
 # custom categorization shortcuts for some of my goals
 # replace or delete these with yours
-debugNote(int(parentNode) == int(Hook['env']['nachsteproot']))
 if int(parentNode) == int(Hook['env']['nachsteproot']):
-    debugNote(parentNode + "IN THA LOOP")
     if any(x in subject.lower() for x in ["music", "song"]):
         parentNode = 47745
     elif any(x in subject.lower() for x in ["deviantart", ]):
@@ -113,7 +110,6 @@ if int(parentNode) == int(Hook['env']['nachsteproot']):
     elif any(x in subject.lower() for x in ["wp", ]):
         parentNode = 49021
     elif any(x in subject.lower() for x in ["[dot]", "ffinit", "fa:"]):
-        debugNote(parentNode + "IN THA ELIF")
         parentNode = 47587
     elif any(x in subject.lower() for x in ["buy", "amazon", "purchase"]):
         parentNode = 47577
