@@ -48,6 +48,8 @@ magicWord = Hook['env']['magicword']
 # now we set the parameters
 status = Hook['params']['st']
 secret = Hook['params']['sec']
+debugParent = 51020
+
 # catch empty params
 try:
     parentNode = Hook['params']['par']
@@ -73,6 +75,7 @@ def debugNote(content):
 # this is where we get the URL and split it to a list of pseudo-params
 
 msg = urllib.unquote(str(Hook['req']['url'].encode('ascii', 'ignore')))
+debugNote(msg)
 msgstring = msg.split("_B_R_K_")
 
 notes = None
@@ -91,10 +94,9 @@ if notes:
 notes = newNotes
 
 # strip blank params passed from IFTT/placeholders
-toss = ("", '\n', "NOSUB")
+toss = ("", '\n', "NOSUB", ' ', '  ')
 filteredNotes = [x for x in notes if x not in toss]
 notes = filteredNotes
-
 # if no subject (read: shared from Google Keep), use body as subject
 # but keep body as note in case of errors/truncation
 if subject in toss:
