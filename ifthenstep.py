@@ -109,6 +109,8 @@ if int(parentNode) == int(Hook['env']['nachsteproot']):
         parentNode = 47745
     elif any(x in subject.lower() for x in ["deviantart", ]):
         parentNode = 47688
+    elif any(x in subject.lower() for x in ["cook", "recipe", ]):
+        parentNode = 48192
     elif any(x in subject.lower() for x in ["wp", ]):
         parentNode = 49021
     elif any(x in subject.lower() for x in ["[dot]", "ffinit", "fa:"]):
