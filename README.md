@@ -14,4 +14,4 @@ since the last time it was run. Uses MongoDB for storing the timestamp; that's
   or write to an INI file. Private settings are stored in a config.py file. 
   Logging is implemented via print statements, since that's easy for 
   interactive use as well as for cron via ```python pocketcheck.py >> 
-  pocketcheck.log```
+  pocketcheck.log``` (in a shell script).
