@@ -6,6 +6,13 @@ import requests
 import json
 
 
+def updateTimeDb():
+    timedb.insert_one(dict(
+        _id="lastTime",
+        lastTime=time.time()
+    ))
+
+
 def makeStep(titleString):
     url = 'https://nachapp.com/api/users/' + str(config.nachUser) + '/nodes'
     newStep = requests.post(url,
@@ -26,22 +33,25 @@ def makeStep(titleString):
                                    verify=False,
                                    data={"status": "completed"})
 
+# initialize the connection to Mongo
 client = pymongo.MongoClient()
 db = client.nachios
 timedb = db.time
 
-# this code for init-ing blank DB
-# timedb.insert_one(dict(
-#     _id="lastTime",
-#     lastTime=time.time()
-# ))
-
+# when did we last check for new articles?
 lastTime = timedb.find_one({"_id": "lastTime"})['lastTime']
 
 p = pocket.Pocket(config.consumerKey, config.accessToken)
 
+# get all archived articles modified since last check
 articleList = p.get(detailType="simple", state="archive", since=lastTime)
 
+# this goes through the raw Pocket data for each item and finds a nonblank
+# string to use as a title. The IFTTT -> Hook version of this was failing
+# I think because sometimes the only usable title is resolved_url and
+# IFTTT sends a blank title in such cases.
+
+# also IFTTT is really slow compared to running this on a 30 second cron.
 for each in articleList[0]['list'].itervalues():
     buildup = ' '
     for title in(
@@ -53,3 +63,6 @@ for each in articleList[0]['list'].itervalues():
         else:
             makeStep(title)
             break
+
+# set last checked time to now
+updateTimeDb()
