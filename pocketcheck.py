@@ -55,21 +55,18 @@ articleList = p.get(detailType="simple", state="archive", since=lastTime)
 # IFTTT sends a blank title in such cases.
 
 # also IFTTT is really slow compared to running this on a 30 second cron.
-try:
-    for each in articleList[0]['list'].itervalues():
-        buildup = ' '
-        for title in(
-                each['resolved_title'],
-                each['given_title'],
-                each['resolved_url']):
-            if len(title) == 0:
-                pass
-            else:
-                makeStep(title)
-                print "made step for {0}".format(title)
-                break
-except:
-    print "no articles found"
+for each in articleList[0]['list'].itervalues():
+    for title in(
+            each['resolved_title'],
+            each['given_title'],
+            each['resolved_url']):
+        if len(title) == 0:
+            pass
+        else:
+            makeStep(title)
+            print "made step for {0}".format(title)
+            break
+#print "no articles found"
 
 # set last checked time to now
 
