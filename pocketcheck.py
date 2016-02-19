@@ -2,6 +2,29 @@ import pocket
 import config
 import time
 import pymongo
+import requests
+import json
+
+
+def makeStep(titleString):
+    url = 'https://nachapp.com/api/users/' + str(config.nachUser) + '/nodes'
+    newStep = requests.post(url,
+                            auth=(config.nachApiKey, ''),
+                            verify=False,
+                            data={
+                                  "parent": config.nachPTRNode,
+                                  "type": "Step",
+                                  "name": titleString
+                            })
+    # pause - completion doesn't work if we do not do this
+    response = json.loads(newStep.text)
+    nodeId = response['id']
+    time.sleep(8)
+    url = 'https://nachapp.com/api/todos/' + str(nodeId)
+    newCompletion = requests.patch(url,
+                                   auth=(config.nachApiKey, ''),
+                                   verify=False,
+                                   data={"status": "completed"})
 
 client = pymongo.MongoClient()
 db = client.nachios
@@ -28,5 +51,5 @@ for each in articleList[0]['list'].itervalues():
         if len(title) == 0:
             pass
         else:
-            print title
+            makeStep(title)
             break
