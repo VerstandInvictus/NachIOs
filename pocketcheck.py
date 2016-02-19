@@ -66,6 +66,7 @@ for each in articleList[0]['list'].itervalues():
             makeStep(title)
             print "made step for {0}".format(title)
             break
+
 #print "no articles found"
 
 # set last checked time to now
