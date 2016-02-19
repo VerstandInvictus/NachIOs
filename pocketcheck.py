@@ -13,7 +13,7 @@ timedb = db.time
 #     lastTime=time.time()
 # ))
 
-lastTime = timedb.find_one({"_id": "lastTime"}).lastTime
+lastTime = timedb.find_one({"_id": "lastTime"})['lastTime']
 
 p = pocket.Pocket(config.consumerKey, config.accessToken)
 
