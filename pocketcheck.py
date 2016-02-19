@@ -4,6 +4,7 @@ import time
 import pymongo
 import requests
 import json
+import unidecode
 
 # initialize the connection to Mongo
 client = pymongo.MongoClient()
@@ -64,7 +65,7 @@ for each in articleList[0]['list'].itervalues():
             pass
         else:
             makeStep(title)
-            print "made step for {0}".format(title)
+            print "made step for {0}".format(unidecode.unidecode(title))
             break
 
 #print "no articles found"
