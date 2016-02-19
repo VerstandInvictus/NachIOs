@@ -5,8 +5,14 @@ import pymongo
 import requests
 import json
 
+# initialize the connection to Mongo
+client = pymongo.MongoClient()
+db = client.nachios
+timedb = db.time
+
 
 def updateTimeDb():
+    timedb.drop()
     timedb.insert_one(dict(
         _id="lastTime",
         lastTime=time.time()
@@ -33,14 +39,10 @@ def makeStep(titleString):
                                    verify=False,
                                    data={"status": "completed"})
 
-# initialize the connection to Mongo
-client = pymongo.MongoClient()
-db = client.nachios
-timedb = db.time
-
 # when did we last check for new articles?
 lastTime = timedb.find_one({"_id": "lastTime"})['lastTime']
 
+# initialize pocket
 p = pocket.Pocket(config.consumerKey, config.accessToken)
 
 # get all archived articles modified since last check
@@ -65,4 +67,5 @@ for each in articleList[0]['list'].itervalues():
             break
 
 # set last checked time to now
+
 updateTimeDb()
