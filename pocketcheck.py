@@ -55,7 +55,7 @@ articleList = p.get(detailType="simple", state="archive", since=lastTime)
 # I think because sometimes the only usable title is resolved_url and
 # IFTTT sends a blank title in such cases.
 
-# also IFTTT is really slow compared to running this on a 30 second cron.
+# also IFTTT is really slow compared to running this on a 5 minute cron.
 try:
     for each in articleList[0]['list'].itervalues():
         for title in(
