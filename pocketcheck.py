@@ -5,6 +5,7 @@ import pymongo
 import requests
 import json
 import unidecode
+import arrow
 
 # initialize the connection to Mongo
 client = pymongo.MongoClient()
@@ -12,13 +13,13 @@ db = client.nachios
 timedb = db.time
 
 
-def updateTimeDb():
+def updateTimeDb(rtime):
     timedb.drop()
     timedb.insert_one(dict(
         _id="lastTime",
         lastTime=time.time()
     ))
-    print "time updated."
+    print "{0}: time updated.".format(rtime)
 
 
 def makeStep(titleString):
@@ -43,6 +44,8 @@ def makeStep(titleString):
 
 # when did we last check for new articles?
 lastTime = timedb.find_one({"_id": "lastTime"})['lastTime']
+readableTime = arrow.utcnow().to(
+    'US/Pacific').format("YYYY-MM-DD HH:mm:ss ZZ")
 
 # initialize pocket
 p = pocket.Pocket(config.consumerKey, config.accessToken)
@@ -61,20 +64,26 @@ try:
         try:
             ert = each['resolved_title']
         except:
-            print each
+            ert = "unknown title"
+            print "{0}: unknown title: {1}".format(
+                readableTime,
+                each
+            )
         for title in(
-                each['resolved_title'],
+                ert,
                 each['given_title'],
                 each['resolved_url']):
             if len(title) == 0:
                 pass
             else:
                 makeStep(title)
-                print "made step for {0}".format(unidecode.unidecode(title))
+                print "{1}: made step for {0}".format(
+                    unidecode.unidecode(title),
+                    readableTime)
                 break
 except AttributeError:
-    print "no articles found"
+    print "{0}: no articles found".format(readableTime)
 
 # set last checked time to now
 
-updateTimeDb()
+updateTimeDb(readableTime)
