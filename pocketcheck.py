@@ -6,6 +6,8 @@ import requests
 import json
 import unidecode
 import arrow
+requests.packages.urllib3.disable_warnings()
+
 
 # initialize the connection to Mongo
 client = pymongo.MongoClient()
