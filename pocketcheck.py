@@ -61,19 +61,22 @@ articleList = p.get(detailType="simple", state="archive", since=lastTime)
 # also IFTTT is really slow compared to running this on a 5 minute cron.
 try:
     for each in articleList[0]['list'].itervalues():
+        ert = None
+        egt = None
+        eru = None
         try:
             ert = each['resolved_title']
+            egt = each['given_title']
+            eru = each['resolved_url'] # not Iluvatar
         except:
-            ert = "unknown title"
             print "{0}: unknown title: {1}".format(
                 readableTime,
                 each
             )
-        for title in(
-                ert,
-                each['given_title'],
-                each['resolved_url']):
-            if len(title) == 0:
+        for title in(ert, egt, eru, "unknown title"):
+            if not title:
+                pass
+            elif len(title) == 0:
                 pass
             else:
                 makeStep(title)
