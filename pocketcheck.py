@@ -58,6 +58,10 @@ articleList = p.get(detailType="simple", state="archive", since=lastTime)
 # also IFTTT is really slow compared to running this on a 30 second cron.
 try:
     for each in articleList[0]['list'].itervalues():
+        try:
+            ert = each['resolved_title']
+        except:
+            print each
         for title in(
                 each['resolved_title'],
                 each['given_title'],
