@@ -6,7 +6,6 @@ import requests
 import json
 import unidecode
 import arrow
-requests.packages.urllib3.disable_warnings()
 
 
 # disable warning about HTTPS
