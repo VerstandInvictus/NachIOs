@@ -6,6 +6,13 @@ import requests
 import json
 import unidecode
 
+# disable warning about HTTPS
+try:
+    requests.packages.urllib3.disable_warnings()
+except:
+    pass
+
+
 # initialize the connection to Mongo
 client = pymongo.MongoClient()
 db = client.nachios
