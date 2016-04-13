@@ -5,6 +5,9 @@ import pymongo
 import requests
 import json
 import unidecode
+import arrow
+requests.packages.urllib3.disable_warnings()
+
 
 # disable warning about HTTPS
 try:
@@ -19,13 +22,13 @@ db = client.nachios
 timedb = db.time
 
 
-def updateTimeDb():
+def updateTimeDb(rtime):
     timedb.drop()
     timedb.insert_one(dict(
         _id="lastTime",
         lastTime=time.time()
     ))
-    print "time updated."
+    print "{0}: time updated.".format(rtime)
 
 
 def makeStep(titleString):
@@ -50,6 +53,8 @@ def makeStep(titleString):
 
 # when did we last check for new articles?
 lastTime = timedb.find_one({"_id": "lastTime"})['lastTime']
+readableTime = arrow.utcnow().to(
+    'US/Pacific').format("YYYY-MM-DD HH:mm:ss ZZ")
 
 # initialize pocket
 p = pocket.Pocket(config.consumerKey, config.accessToken)
@@ -62,22 +67,35 @@ articleList = p.get(detailType="simple", state="archive", since=lastTime)
 # I think because sometimes the only usable title is resolved_url and
 # IFTTT sends a blank title in such cases.
 
-# also IFTTT is really slow compared to running this on a 30 second cron.
+# also IFTTT is really slow compared to running this on a 5 minute cron.
 try:
     for each in articleList[0]['list'].itervalues():
-        for title in(
-                each['resolved_title'],
-                each['given_title'],
-                each['resolved_url']):
-            if len(title) == 0:
+        ert = None
+        egt = None
+        eru = None
+        try:
+            ert = each['resolved_title']
+            egt = each['given_title']
+            eru = each['resolved_url'] # not Iluvatar
+        except:
+            print "{0}: unknown title: {1}".format(
+                readableTime,
+                each
+            )
+        for title in(ert, egt, eru, "unknown title"):
+            if not title:
+                pass
+            elif len(title) == 0:
                 pass
             else:
                 makeStep(title)
-                print "made step for {0}".format(unidecode.unidecode(title))
+                print "{1}: made step for {0}".format(
+                    unidecode.unidecode(title),
+                    readableTime)
                 break
 except AttributeError:
-    print "no articles found"
+    print "{0}: no articles found".format(readableTime)
 
 # set last checked time to now
 
-updateTimeDb()
+updateTimeDb(readableTime)
